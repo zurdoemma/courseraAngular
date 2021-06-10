@@ -1,6 +1,9 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { DishService } from '../services/dish.service';
 import { Dish } from '../shared/dish';
-import { DatePipe } from '@angular/common';
+
+import { Params, ActivatedRoute } from '@angular/router';
+import { DatePipe, Location } from '@angular/common';
 
 @Component({
   selector: 'app-dishdetail',
@@ -9,14 +12,21 @@ import { DatePipe } from '@angular/common';
 })
 export class DishdetailComponent implements OnInit {
 
-  @Input()
   dish: Dish;
   
   pipeDate = new DatePipe('en-US');
 
-  constructor() { }
+  constructor(private dishservice: DishService,
+    private route: ActivatedRoute,
+    private location: Location) { }
 
   ngOnInit() {
+    const id = +this.route.snapshot.params['id'];
+    this.dish = this.dishservice.getDish(String(id));
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 
 }
