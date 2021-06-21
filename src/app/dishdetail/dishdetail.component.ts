@@ -58,7 +58,7 @@ export class DishdetailComponent implements OnInit {
   createForm() {
     this.commentForm = this.cm.group({
       author: ['', [Validators.required, Validators.minLength(2)]],
-      rating: 4,
+      rating: 5,
       comment: ['', Validators.required ]
     });
 
@@ -81,10 +81,10 @@ export class DishdetailComponent implements OnInit {
 
     this.commentForm.reset({
       author: '',
-      rating: 4,
+      rating: 5,
       comment: ''
     });
-    this.commentFormDirective.resetForm();
+    //this.commentFormDirective.resetForm();
   }
 
   onValueChanged(data?: any) {
