@@ -3,7 +3,9 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { Feedback, ContactType } from '../shared/feedback';
 
-import { flyInOut } from '../animations/app.animation';
+import { flyInOut, expand } from '../animations/app.animation';
+
+import { FeedbackService } from '../services/feedback.service';
 
 @Component({
   selector: 'app-contact',
@@ -14,15 +16,19 @@ import { flyInOut } from '../animations/app.animation';
     'style': 'display: block;'
     },
   animations: [
-      flyInOut()
+      flyInOut(),
+      expand()
   ]
 })
 export class ContactComponent implements OnInit {
 
   feedbackForm: FormGroup;
   feedback: Feedback;
+  feedbakNew: Feedback;
   contactType = ContactType;
   @ViewChild('fform') feedbackFormDirective;
+  errMess: string;
+  visibilityFeedbackForm = false;
 
   formErrors = {
     'firstname': '',
@@ -52,7 +58,8 @@ export class ContactComponent implements OnInit {
     },
   };
 
-  constructor(private fb: FormBuilder) { 
+  constructor(private fb: FormBuilder,
+    private feedbackservice: FeedbackService) { 
     this.createForm();
   }
 
@@ -74,11 +81,25 @@ export class ContactComponent implements OnInit {
       .subscribe(data => this.onValueChanged(data));
 
     this.onValueChanged(); // (re)set validation messages now
+    this.feedbakNew = null;
   }
 
   onSubmit() {
+    this.visibilityFeedbackForm = true;
+
     this.feedback = this.feedbackForm.value;
     console.log(this.feedback);
+
+    this.feedbackservice.submitFeedback(this.feedback)
+      .subscribe(feedback => {
+        this.visibilityFeedbackForm = false;
+        this.feedback = feedback;
+        this.feedbakNew = feedback;
+        setTimeout(() => {this.feedbakNew = null},5000);
+      },
+      errmess => { this.feedback = null; this.visibilityFeedbackForm = false; this.feedbakNew = null; this.errMess = <any>errmess; });
+
+    this.feedbackFormDirective.resetForm();
     this.feedbackForm.reset({
       firstname: '',
       lastname: '',
@@ -88,7 +109,7 @@ export class ContactComponent implements OnInit {
       contacttype: 'None',
       message: ''
     });
-    this.feedbackFormDirective.resetForm();
+    
   }
 
   onValueChanged(data?: any) {
